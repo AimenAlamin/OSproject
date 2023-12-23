@@ -1,12 +1,26 @@
-#include <stdio.h>
+#include<stdio.h>
 
 int main()
 {
-    	int sh; // used to select which scheduling method
+	int sh; // used to select which scheduling method
 	int sjfOpt; // used to select preemptive or non-preemptive for sjf method
 	int priOpt; // used to select preemptive or non-preemptive for priortiy method
 	int Tq; //used for time quantum value
+	int ch; //for reading from file
 	
+	FILE *fp = fopen("D:/Eorkp1/Myinput.txt", "r"); //here I stored my created file in PC as in fp 
+	if(fp==NULL)
+    {
+        printf("Error, no file exist");
+        return 1;
+    }
+	
+	while(!feof(fp))
+	{
+		ch = fgetc(fp);
+		printf("%c", ch);
+	}
+	printf("\n");
 	printf("From the following options\n 1-FCFS \n 2-SJF \n 3-Priority Scheduling \n 4-Round Robbin \n 5-End the program\n");
 	printf("Select the scheduling method: ");
 	scanf("%d",&sh);
@@ -81,6 +95,6 @@ int main()
 		
 	}
 	printf("\nProgram terminated");
-    
-    return 0;
+	fclose(fp);
+	return 0;
 }
