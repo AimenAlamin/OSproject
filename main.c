@@ -22,6 +22,12 @@ int main(int argc, char *argv[]) // here I'm getting arguments from command line
         printf("Error, can't open file");
         return 1;
     }
+    char str[10]; // buffer to store the characters from file
+    while(!feof(fpr))
+    {
+        fgets(str, 10, fpr);
+		printf("%s",str);
+    }
     
     int sh; // used to select which scheduling method
 	int sjfOpt; // used to select preemptive or non-preemptive for sjf method
