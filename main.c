@@ -1,25 +1,34 @@
 #include<stdio.h>
 
-int main()
+int main(int argc, char *argv[]) // here I'm getting arguments from command line
 {
-	int sh; // used to select which scheduling method
+	
+	if(argc!=5)
+	{
+		printf("Invalid number of arguments. write ./Main –f input.txt –o output.txt");
+		return 1;
+	}
+	
+	FILE *fpr = fopen(argv[2], "r"); //here I stored the file I will read from as fpr 
+	FILE *fpa = fopen(argv[4], "a"); //here I stored the file I will append to as fpa 
+	
+	if(fpr==NULL)
+    {
+        printf("Error, can't open file");
+        return 1;
+    }
+    if(fpa==NULL)
+    {
+        printf("Error, can't open file");
+        return 1;
+    }
+    
+    int sh; // used to select which scheduling method
 	int sjfOpt; // used to select preemptive or non-preemptive for sjf method
 	int priOpt; // used to select preemptive or non-preemptive for priortiy method
 	int Tq; //used for time quantum value
 	int ch; //for reading from file
-	
-	FILE *fp = fopen("D:/Eorkp1/Myinput.txt", "r"); //here I stored my created file in PC as in fp 
-	if(fp==NULL)
-    {
-        printf("Error, no file exist");
-        return 1;
-    }
-	
-	while(!feof(fp))
-	{
-		ch = fgetc(fp);
-		printf("%c", ch);
-	}
+		
 	printf("\n");
 	printf("From the following options\n 1-FCFS \n 2-SJF \n 3-Priority Scheduling \n 4-Round Robbin \n 5-End the program\n");
 	printf("Select the scheduling method: ");
@@ -95,6 +104,6 @@ int main()
 		
 	}
 	printf("\nProgram terminated");
-	fclose(fp);
+    
 	return 0;
 }
