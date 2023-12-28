@@ -1,4 +1,46 @@
-#include<stdio.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node {
+    int data;
+    struct node *next;
+};
+
+struct node *createNode(int item) {
+    struct node *header = (struct node *)malloc(sizeof(struct node));
+    header->data = item;
+    header->next = NULL;
+    return header;
+}
+
+void display(struct node *header) {
+    if (header == NULL) {
+        printf("List is empty");
+    } else {
+        struct node *temp = header;
+        while (temp != NULL) {
+            printf("%d  --> ", temp->data);
+            temp = temp->next;
+        }
+    }
+}
+
+struct node *InsertBack(struct node *header, int item) {
+    struct node *temp = createNode(item);
+
+    if (header == NULL) {
+        header = temp;
+        return header;
+    }
+
+    struct node *headerTemp = header;
+    while (headerTemp->next != NULL) {
+        headerTemp = headerTemp->next;
+    }
+    headerTemp->next = temp;
+
+    return header;
+}
 
 int main(int argc, char *argv[]) // here I'm getting arguments from command line
 {
@@ -22,11 +64,38 @@ int main(int argc, char *argv[]) // here I'm getting arguments from command line
         printf("Error, can't open file");
         return 1;
     }
-    char str[15]; // buffer to store characters 
-    while(fgets(str, 15, fileRead)!=NULL)
+
+    struct node *head = NULL;
+
+    char str[100];
+    int number; 
+    while(fgets(str, 100, fileRead)!=NULL) //reading from file and storing integer to linked list
     {
-		printf("%s",str);  //printing file input
+		number = 0;
+		int i;
+        // Iterate through the characters and store the integers in linked list
+        for (i = 0; str[i] != '\0' && str[i] != '\n'; i++)
+		 {
+            if (str[i] >= '0' && str[i] <= '9')
+			 {
+                number = number * 10 + (str[i] - '0');
+            } 
+			else if (str[i] == ':')
+			 {
+                // If a colon is encountered, store the integer in the linked list
+                head = InsertBack(head, number);
+                number = 0; // Reset it for the next integer
+            }
+        }
+
+        // Store the last integer in the line
+        head = InsertBack(head, number);
+        // read a new line, repeat the cycle until end of file
     }
+
+    fclose(fileRead);
+
+    display(head);
     
     int sh;      // used to select which scheduling method
     int preemptiveOption = 0;  // 0 for non-preemptive, 1 for preemptive. By default it is non-preemptive mode
@@ -109,7 +178,7 @@ int main(int argc, char *argv[]) // here I'm getting arguments from command line
        
     }
     printf("\nProgram terminated");
-    fclose(fileRead);
+    
 	fclose(fileAppend);
     
 	return 0;
