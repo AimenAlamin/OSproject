@@ -13,7 +13,8 @@ struct node *createNode(int item) {
     return header;
 }
 
-void display(struct node *header) {
+
+void displayBurst(struct node *header) {
     if (header == NULL) {
         printf("List is empty");
     } else {
@@ -25,7 +26,31 @@ void display(struct node *header) {
     }
 }
 
-struct node *InsertBack(struct node *header, int item) {
+void displayArrival(struct node *header) {
+    if (header == NULL) {
+        printf("List is empty");
+    } else {
+        struct node *temp = header;
+        while (temp != NULL) {
+            printf("%d  --> ", temp->data);
+            temp = temp->next;
+        }
+    }
+}
+
+void displayPriority(struct node *header) {
+    if (header == NULL) {
+        printf("List is empty");
+    } else {
+        struct node *temp = header;
+        while (temp != NULL) {
+            printf("%d  --> ", temp->data);
+            temp = temp->next;
+        }
+    }
+}
+
+struct node *InsertBurst(struct node *header, int item) {
     struct node *temp = createNode(item);
 
     if (header == NULL) {
@@ -40,6 +65,68 @@ struct node *InsertBack(struct node *header, int item) {
     headerTemp->next = temp;
 
     return header;
+}
+
+struct node *InsertArrival(struct node *header, int item) {
+    struct node *temp = createNode(item);
+
+    if (header == NULL) {
+        header = temp;
+        return header;
+    }
+
+    struct node *headerTemp = header;
+    while (headerTemp->next != NULL) {
+        headerTemp = headerTemp->next;
+    }
+    headerTemp->next = temp;
+
+    return header;
+}
+
+struct node *InsertPriority(struct node *header, int item) {
+    struct node *temp = createNode(item);
+
+    if (header == NULL) {
+        header = temp;
+        return header;
+    }
+
+    struct node *headerTemp = header;
+    while (headerTemp->next != NULL) {
+        headerTemp = headerTemp->next;
+    }
+    headerTemp->next = temp;
+
+    return header;
+}
+
+void FCFS(struct node *ArrivalHead, struct node *BurstHead)
+{
+    struct node *tempArrivalHead = ArrivalHead;
+    struct node *tempBurstHead = BurstHead;
+    int sum =0;
+    int TAT =0;
+    int BT =0;
+    int WT =0;
+    int CT =0;
+    int n =0;
+
+    printf("Process waiting times:");
+    while(tempArrivalHead!=NULL)
+    {
+        CT = CT + tempBurstHead->data;
+        TAT = CT - tempArrivalHead->data;
+        WT = TAT - tempBurstHead ->data;
+        printf("\nP %d : %d ms", n+1, WT);
+        sum = sum + WT;
+        n++;
+        tempBurstHead = tempBurstHead->next;
+        tempArrivalHead = tempArrivalHead->next;
+    }
+    
+    float avg = (float)sum/n;
+    printf("\n Average waiting time: %.2f", avg);
 }
 
 int main(int argc, char *argv[]) // here I'm getting arguments from command line
@@ -65,13 +152,17 @@ int main(int argc, char *argv[]) // here I'm getting arguments from command line
         return 1;
     }
 
-    struct node *head = NULL;
+    struct node *BurstHead = NULL;
+    struct node *ArrivalHead = NULL;
+    struct node *PriorityHead = NULL;
 
     char str[100];
-    int number; 
+    int number, count; 
+
     while(fgets(str, 100, fileRead)!=NULL) //reading from file and storing integer to linked list
     {
 		number = 0;
+        count = 0;
 		int i;
         // Iterate through the characters and store the integers in linked list
         for (i = 0; str[i] != '\0' && str[i] != '\n'; i++)
@@ -80,22 +171,46 @@ int main(int argc, char *argv[]) // here I'm getting arguments from command line
 			 {
                 number = number * 10 + (str[i] - '0');
             } 
-			else if (str[i] == ':')
+			else if (str[i] == ':')  // If a colon is encountered, store the integer in the linked list
 			 {
-                // If a colon is encountered, store the integer in the linked list
-                head = InsertBack(head, number);
+			 	if(count==0) //store the first integer here
+			 	{
+			 		BurstHead = InsertBurst(BurstHead, number);
+			 		count++; // increment count for second integer
+                   
+			 		
+				 }
+				 else // count will be 1 which means second integer
+				 {
+				 	ArrivalHead = InsertArrival(ArrivalHead, number);
+                   
+				 }
+               
+                
+                
                 number = 0; // Reset it for the next integer
             }
         }
 
-        // Store the last integer in the line
-        head = InsertBack(head, number);
+        PriorityHead = InsertPriority(PriorityHead, number); // Store the last integer in the line
+     
+        
         // read a new line, repeat the cycle until end of file
     }
-
+    
     fclose(fileRead);
 
-    display(head);
+    printf("Burst: ");
+    displayBurst(BurstHead);
+    printf("\n\n");
+    
+    printf("Arrival: ");
+    displayArrival(ArrivalHead);
+    printf("\n\n");
+    
+    printf("Priority: ");
+    displayPriority(PriorityHead);
+    printf("\n\n");
     
     int sh;      // used to select which scheduling method
     int preemptiveOption = 0;  // 0 for non-preemptive, 1 for preemptive. By default it is non-preemptive mode
@@ -113,8 +228,8 @@ int main(int argc, char *argv[]) // here I'm getting arguments from command line
         if (sh == 1)
         {
             printf("Scheduling method: First Come First Served\n");
-            printf("Process waiting time:\n");
-            printf("\nAverage waiting time:");
+            FCFS(ArrivalHead, BurstHead);
+            
         }
         else if (sh == 2)
         {
@@ -178,7 +293,6 @@ int main(int argc, char *argv[]) // here I'm getting arguments from command line
        
     }
     printf("\nProgram terminated");
-    
 	fclose(fileAppend);
     
 	return 0;
