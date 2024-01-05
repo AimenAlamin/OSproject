@@ -101,33 +101,83 @@ struct node *InsertPriority(struct node *header, int item) {
     return header;
 }
 
-void FCFS(struct node *ArrivalHead, struct node *BurstHead)
+struct node *swapAfterNode(struct node *header, struct node *afterNode) //swap a number with it's next
+{
+	struct node *headerTemp = header;
+	while(headerTemp->next!=afterNode)
+	{
+		headerTemp = headerTemp->next;
+	}
+	struct node *temp = afterNode->next->next;
+	//swap
+	headerTemp->next = afterNode->next;
+	afterNode->next= temp;
+	headerTemp->next->next = afterNode;
+	
+	return header;
+		
+}
+void fcfsSorted(struct node *ArrivalHead, struct node *BurstHead)
 {
     struct node *tempArrivalHead = ArrivalHead;
     struct node *tempBurstHead = BurstHead;
-    int sum =0;
-    int TAT =0;
-    int BT =0;
-    int WT =0;
-    int CT =0;
-    int n =0;
 
-    printf("Process waiting times:");
-    while(tempArrivalHead!=NULL)
+    while (tempArrivalHead != NULL && tempArrivalHead->next != NULL)
     {
-        CT = CT + tempBurstHead->data;
-        TAT = CT - tempArrivalHead->data;
-        WT = TAT - tempBurstHead ->data;
-        printf("\nP %d : %d ms", n+1, WT);
-        sum = sum + WT;
-        n++;
-        tempBurstHead = tempBurstHead->next;
+        printf("Before Swap: Arrival=%d Burst=%d\n", tempArrivalHead->data, tempBurstHead->data);
+        
+        if (tempArrivalHead->data > tempArrivalHead->next->data)
+        {
+            swapAfterNode(tempArrivalHead, tempArrivalHead->next);
+            swapAfterNode(tempBurstHead, tempBurstHead->next);
+        }
+        
+        printf("After Swap: Arrival=%d Burst=%d\n", tempArrivalHead->data, tempBurstHead->data);
+
         tempArrivalHead = tempArrivalHead->next;
     }
+}
+
+void FCFS(struct node *OriginalArrivalHead, struct node *OriginalBurstHead)
+{
     
-    float avg = (float)sum/n;
+    struct node *ArrivalHead = OriginalArrivalHead;
+    struct node *BurstHead = OriginalBurstHead;
+    int sum = 0;
+    int TAT = 0;
+    int BT = 0;
+    int WT = 0;
+    int CT = 0;
+    int n = 0;
+
+    // Sort the linked lists
+    fcfsSorted(ArrivalHead, BurstHead);
+
+    printf("Burst: ");
+    displayBurst(BurstHead);
+    printf("\n\n");
+
+    printf("Arrival: ");
+    displayArrival(ArrivalHead);
+    printf("\n\n");
+
+    printf("Process waiting times:");
+    while (ArrivalHead != NULL)
+    {
+        CT = CT + BurstHead->data;
+        TAT = CT - ArrivalHead->data;
+        WT = TAT - BurstHead->data;
+        printf("\nP %d : %d ms", n + 1, WT);
+        sum = sum + WT;
+        n++;
+        BurstHead = BurstHead->next;
+        ArrivalHead = ArrivalHead->next;
+    }
+
+    float avg = (float)sum / n;
     printf("\n Average waiting time: %.2f", avg);
 }
+
 
 int main(int argc, char *argv[]) // here I'm getting arguments from command line
 {
