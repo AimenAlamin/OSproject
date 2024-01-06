@@ -83,6 +83,42 @@ void SortbyArrival(struct node *header)
 
 }
 
+void FCFS(struct node *header, char *outFilepath)
+{
+    FILE *outFile = fopen(outFilepath, "a");
+    SortbyArrival(header);
+
+   struct node *temp = header;
+    int sum =0;
+    int TAT =0;
+    int BT =0;
+    int WT =0;
+    int CT =0;
+    int n=0;
+    fprintf(outFile, "\nScheduling method: First Come First Served\n"); 
+    fprintf(outFile, "Process waiting times:");
+
+    printf("Scheduling method: First Come First Served\n");
+    printf("Process waiting times:");
+    
+    while(temp!=NULL)
+    {
+        CT = CT + temp->burst;
+        TAT = CT - temp->arrival;
+        WT = TAT - temp ->burst;
+        printf("\nP%d : %d ms", temp->pID, WT);
+        fprintf(outFile,"\nP%d : %d ms", temp->pID, WT );
+        sum = sum + WT;
+        n++;
+        temp = temp->next;
+    }
+
+    float avg = (float)sum/n;
+    printf("\n Average waiting time: %.2f ms", avg);
+    fprintf(outFile,"\n Average waiting time: %.2f ms\n", avg);
+    fclose(outFile);
+}
+
 int main(int argc, char *argv[]) // here I'm getting arguments from command line
 {
 	
@@ -92,8 +128,8 @@ int main(int argc, char *argv[]) // here I'm getting arguments from command line
 		return 1;
 	}
 	
-	FILE *fileRead = fopen(argv[2], "r"); //here I stored the file I will read from as fpr 
-	FILE *fileAppend = fopen(argv[4], "a"); //here I stored the file I will append to as fpa 
+	FILE *fileRead = fopen(argv[2], "r"); //here I stored the file I will read from
+	FILE *fileAppend = fopen(argv[4], "a"); //here I stored the file I will append to  
 	
 	if(fileRead==NULL)
     {
@@ -162,6 +198,7 @@ int main(int argc, char *argv[]) // here I'm getting arguments from command line
     printf("\n\nSorted by Arrival Linked list\n");
     SortbyArrival(head);
     display(head);
+    printf("\n");
     
     int sh;      // used to select which scheduling method
     int preemptiveOption = 0;  // 0 for non-preemptive, 1 for preemptive. By default it is non-preemptive mode
@@ -170,7 +207,7 @@ int main(int argc, char *argv[]) // here I'm getting arguments from command line
 		
 	printf("\n");
 	printf("From the following options\n 1-FCFS \n 2-SJF \n 3-Priority Scheduling \n 4-Round Robbin \n 5-Change Preemptive Mode\n 6-End the program\n ");
-    printf("Select the scheduling method: ");
+    printf("\nSelect the scheduling method: ");
     scanf("%d", &sh);
     printf("\n");
 	
@@ -178,7 +215,7 @@ int main(int argc, char *argv[]) // here I'm getting arguments from command line
     {
         if (sh == 1)
         {
-            printf("Scheduling method: First Come First Served\n");
+            FCFS(head, argv[4]);
             
         }
         else if (sh == 2)
