@@ -2,56 +2,38 @@
 #include <stdlib.h>
 
 struct node {
-    int data;
+    int pID;
+    int burst;
+    int arrival;
+    int priority;
     struct node *next;
 };
 
-struct node *createNode(int item) {
+struct node *createNode(int pID, int burst, int arrival, int priority) {
     struct node *header = (struct node *)malloc(sizeof(struct node));
-    header->data = item;
+    header->pID = pID;
+    header->burst = burst;
+    header->arrival = arrival;
+    header->priority = priority;
     header->next = NULL;
     return header;
 }
 
-
-void displayBurst(struct node *header) {
+void display(struct node *header) {
     if (header == NULL) {
         printf("List is empty");
     } else {
         struct node *temp = header;
         while (temp != NULL) {
-            printf("%d  --> ", temp->data);
+            printf("P%d  %d  %d  %d -->  ", temp->pID, temp->burst, temp->arrival, temp->priority);
             temp = temp->next;
         }
     }
 }
 
-void displayArrival(struct node *header) {
-    if (header == NULL) {
-        printf("List is empty");
-    } else {
-        struct node *temp = header;
-        while (temp != NULL) {
-            printf("%d  --> ", temp->data);
-            temp = temp->next;
-        }
-    }
-}
 
-void displayPriority(struct node *header) {
-    if (header == NULL) {
-        printf("List is empty");
-    } else {
-        struct node *temp = header;
-        while (temp != NULL) {
-            printf("%d  --> ", temp->data);
-            temp = temp->next;
-        }
-    }
-}
-
-struct node *InsertBurst(struct node *header, int item) {
-    struct node *temp = createNode(item);
+struct node *InsertBack(struct node *header, int pID, int burst, int arrival, int priority) {
+    struct node *temp = createNode(pID, burst, arrival, priority);
 
     if (header == NULL) {
         header = temp;
@@ -65,117 +47,6 @@ struct node *InsertBurst(struct node *header, int item) {
     headerTemp->next = temp;
 
     return header;
-}
-
-struct node *InsertArrival(struct node *header, int item) {
-    struct node *temp = createNode(item);
-
-    if (header == NULL) {
-        header = temp;
-        return header;
-    }
-
-    struct node *headerTemp = header;
-    while (headerTemp->next != NULL) {
-        headerTemp = headerTemp->next;
-    }
-    headerTemp->next = temp;
-
-    return header;
-}
-
-struct node *InsertPriority(struct node *header, int item) {
-    struct node *temp = createNode(item);
-
-    if (header == NULL) {
-        header = temp;
-        return header;
-    }
-
-    struct node *headerTemp = header;
-    while (headerTemp->next != NULL) {
-        headerTemp = headerTemp->next;
-    }
-    headerTemp->next = temp;
-
-    return header;
-}
-
-struct node *swapAfterNode(struct node *header, struct node *afterNode) //swap a number with it's next
-{
-	struct node *headerTemp = header;
-	while(headerTemp->next!=afterNode)
-	{
-		headerTemp = headerTemp->next;
-	}
-	struct node *temp = afterNode->next->next;
-	//swap
-	headerTemp->next = afterNode->next;
-	afterNode->next= temp;
-	headerTemp->next->next = afterNode;
-	
-	return header;
-		
-}
-void fcfsSorted(struct node *ArrivalHead, struct node *BurstHead)
-{
-    struct node *tempArrivalHead = ArrivalHead;
-    struct node *tempBurstHead = BurstHead;
-
-    while (tempArrivalHead != NULL && tempArrivalHead->next != NULL)
-    {
-        printf("Before Swap: Arrival=%d Burst=%d\n", tempArrivalHead->data, tempBurstHead->data);
-        
-        if (tempArrivalHead->data > tempArrivalHead->next->data)
-        {
-            swapAfterNode(tempArrivalHead, tempArrivalHead->next);
-            swapAfterNode(tempBurstHead, tempBurstHead->next);
-        }
-        
-        printf("After Swap: Arrival=%d Burst=%d\n", tempArrivalHead->data, tempBurstHead->data);
-
-        tempArrivalHead = tempArrivalHead->next;
-    }
-}
-
-void FCFS(struct node *OriginalArrivalHead, struct node *OriginalBurstHead)
-{
-    
-    struct node *ArrivalHead = OriginalArrivalHead;
-    struct node *BurstHead = OriginalBurstHead;
-    int sum = 0;
-    int TAT = 0;
-    int BT = 0;
-    int WT = 0;
-    int CT = 0;
-    int n = 0;
-
-    // Sort the linked lists
-    fcfsSorted(ArrivalHead, BurstHead);
-
-    printf("Burst: ");
-    displayBurst(BurstHead);
-    printf("\n\n");
-
-    printf("Arrival: ");
-    displayArrival(ArrivalHead);
-    printf("\n\n");
-
-    printf("Process waiting times:");
-    while (ArrivalHead != NULL)
-    {
-        CT = CT + BurstHead->data;
-        TAT = CT - ArrivalHead->data;
-        WT = TAT - BurstHead->data;
-        printf("\nP %d : %d ms", n + 1, WT);
-        sum = sum + WT;
-        n++;
-        BurstHead = BurstHead->next;
-        ArrivalHead = ArrivalHead->next;
-    }
-
-    float avg = (float)sum / n;
-    printf("\n Average waiting time: %.2f", avg);
 }
 
 
@@ -202,12 +73,12 @@ int main(int argc, char *argv[]) // here I'm getting arguments from command line
         return 1;
     }
 
-    struct node *BurstHead = NULL;
-    struct node *ArrivalHead = NULL;
-    struct node *PriorityHead = NULL;
+    struct node *head = NULL;
 
     char str[100];
     int number, count; 
+    int pID = 1;
+    int burst,arrival,priority;
 
     while(fgets(str, 100, fileRead)!=NULL) //reading from file and storing integer to linked list
     {
@@ -225,14 +96,14 @@ int main(int argc, char *argv[]) // here I'm getting arguments from command line
 			 {
 			 	if(count==0) //store the first integer here
 			 	{
-			 		BurstHead = InsertBurst(BurstHead, number);
+			 		burst = number;
 			 		count++; // increment count for second integer
                    
 			 		
 				 }
 				 else // count will be 1 which means second integer
 				 {
-				 	ArrivalHead = InsertArrival(ArrivalHead, number);
+				 	arrival = number;
                    
 				 }
                
@@ -242,25 +113,17 @@ int main(int argc, char *argv[]) // here I'm getting arguments from command line
             }
         }
 
-        PriorityHead = InsertPriority(PriorityHead, number); // Store the last integer in the line
-     
-        
+       priority = number; // Store the last integer in the line
+       
+       head = InsertBack(head, pID, burst, arrival, priority);
+
         // read a new line, repeat the cycle until end of file
+        pID++; //increment the process id
     }
     
     fclose(fileRead);
 
-    printf("Burst: ");
-    displayBurst(BurstHead);
-    printf("\n\n");
-    
-    printf("Arrival: ");
-    displayArrival(ArrivalHead);
-    printf("\n\n");
-    
-    printf("Priority: ");
-    displayPriority(PriorityHead);
-    printf("\n\n");
+    display(head);
     
     int sh;      // used to select which scheduling method
     int preemptiveOption = 0;  // 0 for non-preemptive, 1 for preemptive. By default it is non-preemptive mode
@@ -278,7 +141,6 @@ int main(int argc, char *argv[]) // here I'm getting arguments from command line
         if (sh == 1)
         {
             printf("Scheduling method: First Come First Served\n");
-            FCFS(ArrivalHead, BurstHead);
             
         }
         else if (sh == 2)
