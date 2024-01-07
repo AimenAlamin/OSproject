@@ -136,6 +136,48 @@ void SortbyBurst(struct node *header)
 
 }
 
+void SortbyPriority(struct node *header)
+{
+    struct node *i;
+    struct node *j;
+    int tempPID, tempBur, tempArr, tempPri;
+
+    if (header == NULL)
+    {
+        printf("List is empty");
+
+    } 
+    else
+    {
+        for(i=header; i->next!=NULL; i=i->next)
+        {
+            for(j=i->next; j!=NULL; j=j->next)
+            {
+                if(i->priority > j->priority)
+                {
+                    tempPID = i->pID;
+                    i->pID = j->pID;
+                    j->pID = tempPID;
+
+                    tempBur = i->burst;
+                    i->burst = j->burst;
+                    j->burst = tempBur;
+                    
+                    tempArr = i->arrival;
+                    i->arrival = j->arrival;
+                    j->arrival = tempArr;
+
+                    tempPri = i->priority;
+                    i->priority = j->priority;
+                    j->priority = tempPri;
+                }
+            }
+        }
+
+    }
+
+}
+
 void FCFS(struct node *header, char *outFilepath)
 {
     if (header == NULL)
@@ -193,6 +235,7 @@ void sjfNonPreemptive(struct node *header, char *outFilepath)
         SortbyArrival(header);
 
         struct node *temp = header;
+        
         SortbyBurst(temp->next);
         int sum =0;
         int TAT =0;
@@ -205,7 +248,7 @@ void sjfNonPreemptive(struct node *header, char *outFilepath)
 
         printf("Scheduling method: Shortest Job First. Non-Preemptive\n");
         printf("Process waiting times:");
-        
+
         while(temp!=NULL)
         { 
             CT = CT + temp->burst;
@@ -224,6 +267,7 @@ void sjfNonPreemptive(struct node *header, char *outFilepath)
         fclose(outFile);
     }
 }
+
 
 int main(int argc, char *argv[]) // here I'm getting arguments from command line
 {
@@ -303,8 +347,12 @@ int main(int argc, char *argv[]) // here I'm getting arguments from command line
 
     //printf("\n\nSorted by Arrival Linked list\n");
     //SortbyArrival(head);
-    printf("\n\nSorted by Burst Linked list\n");
-    SortbyBurst(head);
+
+   // printf("\n\nSorted by Burst Linked list\n");
+   // SortbyBurst(head);
+   
+   printf("\n\nSorted by Priority Linked list\n");
+   SortbyPriority(head);
     display(head);
     printf("\n");
     
