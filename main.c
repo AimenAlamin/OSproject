@@ -22,7 +22,10 @@ struct node *createNode(int pID, int burst, int arrival, int priority) {
 void display(struct node *header) {
     if (header == NULL) {
         printf("List is empty");
-    } else {
+
+    } 
+    else 
+    {
         struct node *temp = header;
         while (temp != NULL) {
             printf("P%d  %d  %d  %d -->  ", temp->pID, temp->burst, temp->arrival, temp->priority);
@@ -55,68 +58,126 @@ void SortbyArrival(struct node *header)
     struct node *j;
     int tempPID, tempBur, tempArr, tempPri;
 
-
-    for(i=header; i->next!=NULL; i=i->next)
+    if (header == NULL)
     {
-        for(j=i->next; j!=NULL; j=j->next)
+        printf("List is empty");
+
+    } 
+    else
+    {
+        for(i=header; i->next!=NULL; i=i->next)
         {
-            if(i->arrival > j->arrival)
+            for(j=i->next; j!=NULL; j=j->next)
             {
-                tempPID = i->pID;
-                i->pID = j->pID;
-                j->pID = tempPID;
+                if(i->arrival > j->arrival)
+                {
+                    tempPID = i->pID;
+                    i->pID = j->pID;
+                    j->pID = tempPID;
 
-                tempBur = i->burst;
-                i->burst = j->burst;
-                j->burst = tempBur;
-                
-                tempArr = i->arrival;
-                i->arrival = j->arrival;
-                j->arrival = tempArr;
+                    tempBur = i->burst;
+                    i->burst = j->burst;
+                    j->burst = tempBur;
+                    
+                    tempArr = i->arrival;
+                    i->arrival = j->arrival;
+                    j->arrival = tempArr;
 
-                tempPri = i->priority;
-                i->priority = j->priority;
-                j->priority = tempPri;
+                    tempPri = i->priority;
+                    i->priority = j->priority;
+                    j->priority = tempPri;
+                }
             }
         }
+
+    }
+
+}
+
+void SortbyBurst(struct node *header)
+{
+    struct node *i;
+    struct node *j;
+    int tempPID, tempBur, tempArr, tempPri;
+
+    if (header == NULL)
+    {
+        printf("List is empty");
+
+    } 
+    else
+    {
+        for(i=header; i->next!=NULL; i=i->next)
+        {
+            for(j=i->next; j!=NULL; j=j->next)
+            {
+                if(i->burst > j->burst)
+                {
+                    tempPID = i->pID;
+                    i->pID = j->pID;
+                    j->pID = tempPID;
+
+                    tempBur = i->burst;
+                    i->burst = j->burst;
+                    j->burst = tempBur;
+                    
+                    tempArr = i->arrival;
+                    i->arrival = j->arrival;
+                    j->arrival = tempArr;
+
+                    tempPri = i->priority;
+                    i->priority = j->priority;
+                    j->priority = tempPri;
+                }
+            }
+        }
+
     }
 
 }
 
 void FCFS(struct node *header, char *outFilepath)
 {
-    FILE *outFile = fopen(outFilepath, "a");
-    SortbyArrival(header);
-
-   struct node *temp = header;
-    int sum =0;
-    int TAT =0;
-    int BT =0;
-    int WT =0;
-    int CT =0;
-    int n=0;
-    fprintf(outFile, "\nScheduling method: First Come First Served\n"); 
-    fprintf(outFile, "Process waiting times:");
-
-    printf("Scheduling method: First Come First Served\n");
-    printf("Process waiting times:");
-    
-    while(temp!=NULL)
+    if (header == NULL)
     {
-        CT = CT + temp->burst;
-        TAT = CT - temp->arrival;
-        WT = TAT - temp ->burst;
-        printf("\nP%d : %d ms", temp->pID, WT);
-        fprintf(outFile,"\nP%d : %d ms", temp->pID, WT );
-        sum = sum + WT;
-        n++;
-        temp = temp->next;
-    }
+        printf("List is empty");
 
-    float avg = (float)sum/n;
-    printf("\n Average waiting time: %.2f ms", avg);
-    fprintf(outFile,"\n Average waiting time: %.2f ms\n", avg);
-    fclose(outFile);
+    } 
+    else
+    {
+        FILE *outFile = fopen(outFilepath, "a");
+        SortbyArrival(header);
+
+        struct node *temp = header;
+        int sum =0;
+        int TAT =0;
+        int BT =0;
+        int WT =0;
+        int CT =0;
+        int n=0;
+        fprintf(outFile, "\nScheduling method: First Come First Served\n"); 
+        fprintf(outFile, "Process waiting times:");
+
+        printf("Scheduling method: First Come First Served\n");
+        printf("Process waiting times:");
+        
+        while(temp!=NULL)
+        {
+            CT = CT + temp->burst;
+            TAT = CT - temp->arrival;
+            WT = TAT - temp ->burst;
+            printf("\nP%d : %d ms", temp->pID, WT);
+            fprintf(outFile,"\nP%d : %d ms", temp->pID, WT );
+            sum = sum + WT;
+            n++;
+            temp = temp->next;
+        }
+
+        float avg = (float)sum/n;
+        printf("\n Average waiting time: %.2f ms", avg);
+        fprintf(outFile,"\n Average waiting time: %.2f ms\n", avg);
+        fclose(outFile);
+    }
 }
 
 int main(int argc, char *argv[]) // here I'm getting arguments from command line
@@ -195,8 +256,10 @@ int main(int argc, char *argv[]) // here I'm getting arguments from command line
     printf("\nOriginal Linked list\n");
     display(head);
 
-    printf("\n\nSorted by Arrival Linked list\n");
-    SortbyArrival(head);
+    //printf("\n\nSorted by Arrival Linked list\n");
+    //SortbyArrival(head);
+    printf("\n\nSorted by Burst Linked list\n");
+    SortbyBurst(head);
     display(head);
     printf("\n");
     
