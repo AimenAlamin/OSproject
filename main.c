@@ -268,6 +268,51 @@ void sjfNonPreemptive(struct node *header, char *outFilepath)
     }
 }
 
+void priorityNonPreemptive(struct node *header, char *outFilepath)
+{
+    if (header == NULL)
+    {
+        printf("List is empty");
+
+    } 
+    else
+    {
+        FILE *outFile = fopen(outFilepath, "a");
+        SortbyArrival(header);
+
+        struct node *temp = header;
+        
+        SortbyPriority(temp->next);
+        int sum =0;
+        int TAT =0;
+        int BT =0;
+        int WT =0;
+        int CT =0;
+        int n=0;
+        fprintf(outFile, "\nScheduling method: Priority Scheduling. Non-Preemptive\n"); 
+        fprintf(outFile, "Process waiting times:");
+
+        printf("Scheduling method: Priority Scheduling. Non-Preemptive\n");
+        printf("Process waiting times:");
+
+        while(temp!=NULL)
+        { 
+            CT = CT + temp->burst;
+            TAT = CT - temp->arrival;
+            WT = TAT - temp ->burst;
+            printf("\nP%d : %d ms", temp->pID, WT);
+            fprintf(outFile,"\nP%d : %d ms", temp->pID, WT );
+            sum = sum + WT;
+            n++;
+            temp = temp->next;
+        }
+
+        float avg = (float)sum/n;
+        printf("\n Average waiting time: %.2f ms", avg);
+        fprintf(outFile,"\n Average waiting time: %.2f ms\n", avg);
+        fclose(outFile);
+    }
+}
 
 int main(int argc, char *argv[]) // here I'm getting arguments from command line
 {
@@ -350,7 +395,7 @@ int main(int argc, char *argv[]) // here I'm getting arguments from command line
 
    // printf("\n\nSorted by Burst Linked list\n");
    // SortbyBurst(head);
-   
+
    printf("\n\nSorted by Priority Linked list\n");
    SortbyPriority(head);
     display(head);
@@ -389,18 +434,15 @@ int main(int argc, char *argv[]) // here I'm getting arguments from command line
         }
         else if (sh == 3)
         {
-            printf("Scheduling method: Priority Scheduling. ");
             if (preemptiveOption == 0)
             {
-                printf("Non-Preemptive\n");
+                priorityNonPreemptive(head, argv[4]);
             }
             else if (preemptiveOption == 1)
             {
-                printf("Preemptive\n");
+                //printf("Preemptive\n");
             }
            
-            printf("Process waiting time:\n");
-            printf("\nAverage waiting time:");
         }
         else if (sh == 4)
         {
