@@ -129,6 +129,28 @@ void SortbyBurst(struct node *header)
                     i->priority = j->priority;
                     j->priority = tempPri;
                 }
+
+                if(i->burst == j->burst)
+                {
+                    if(i->arrival > j->arrival)
+                {
+                    tempPID = i->pID;
+                    i->pID = j->pID;
+                    j->pID = tempPID;
+
+                    tempBur = i->burst;
+                    i->burst = j->burst;
+                    j->burst = tempBur;
+                    
+                    tempArr = i->arrival;
+                    i->arrival = j->arrival;
+                    j->arrival = tempArr;
+
+                    tempPri = i->priority;
+                    i->priority = j->priority;
+                    j->priority = tempPri;
+                }
+                }
             }
         }
 
@@ -170,6 +192,29 @@ void SortbyPriority(struct node *header)
                     tempPri = i->priority;
                     i->priority = j->priority;
                     j->priority = tempPri;
+                }
+
+                if(i->priority == j->priority)
+                {
+                    if(i->arrival > j->arrival)
+                {
+                    tempPID = i->pID;
+                    i->pID = j->pID;
+                    j->pID = tempPID;
+
+                    tempBur = i->burst;
+                    i->burst = j->burst;
+                    j->burst = tempBur;
+                    
+                    tempArr = i->arrival;
+                    i->arrival = j->arrival;
+                    j->arrival = tempArr;
+
+                    tempPri = i->priority;
+                    i->priority = j->priority;
+                    j->priority = tempPri;
+                }
+
                 }
             }
         }
@@ -234,9 +279,7 @@ void sjfNonPreemptive(struct node *header, char *outFilepath)
         FILE *outFile = fopen(outFilepath, "a");
         SortbyArrival(header);
 
-        struct node *temp = header;
-        
-        SortbyBurst(temp->next);
+        struct node *temp1 = header;
         int sum =0;
         int TAT =0;
         int BT =0;
@@ -248,17 +291,28 @@ void sjfNonPreemptive(struct node *header, char *outFilepath)
 
         printf("Scheduling method: Shortest Job First. Non-Preemptive\n");
         printf("Process waiting times:");
-
-        while(temp!=NULL)
-        { 
-            CT = CT + temp->burst;
-            TAT = CT - temp->arrival;
-            WT = TAT - temp ->burst;
-            printf("\nP%d : %d ms", temp->pID, WT);
-            fprintf(outFile,"\nP%d : %d ms", temp->pID, WT );
+            //execute the first process that arrived
+            CT = CT + temp1->burst;
+            TAT = CT - temp1->arrival;
+            WT = TAT - temp1->burst;
+            printf("\nP%d : %d ms", temp1->pID, WT);
+            fprintf(outFile,"\nP%d : %d ms", temp1->pID, WT );
             sum = sum + WT;
             n++;
-            temp = temp->next;
+            
+            struct node *temp2 = temp1->next; //hold the remaning list in temp2
+            SortbyBurst(temp2); //sort them based on burst time
+
+        while(temp2!=NULL)
+        { 
+            CT = CT + temp2->burst;
+            TAT = CT - temp2->arrival;
+            WT = TAT - temp2->burst;
+            printf("\nP%d : %d ms", temp2->pID, WT);
+            fprintf(outFile,"\nP%d : %d ms", temp2->pID, WT );
+            sum = sum + WT;
+            n++;
+            temp2 = temp2->next;
         }
 
         float avg = (float)sum/n;
@@ -280,9 +334,7 @@ void priorityNonPreemptive(struct node *header, char *outFilepath)
         FILE *outFile = fopen(outFilepath, "a");
         SortbyArrival(header);
 
-        struct node *temp = header;
-        
-        SortbyPriority(temp->next);
+        struct node *temp1 = header;
         int sum =0;
         int TAT =0;
         int BT =0;
@@ -294,17 +346,28 @@ void priorityNonPreemptive(struct node *header, char *outFilepath)
 
         printf("Scheduling method: Priority Scheduling. Non-Preemptive\n");
         printf("Process waiting times:");
-
-        while(temp!=NULL)
-        { 
-            CT = CT + temp->burst;
-            TAT = CT - temp->arrival;
-            WT = TAT - temp ->burst;
-            printf("\nP%d : %d ms", temp->pID, WT);
-            fprintf(outFile,"\nP%d : %d ms", temp->pID, WT );
+        //execute the first process that arrived
+            CT = CT + temp1->burst;
+            TAT = CT - temp1->arrival;
+            WT = TAT - temp1->burst;
+            printf("\nP%d : %d ms", temp1->pID, WT);
+            fprintf(outFile,"\nP%d : %d ms", temp1->pID, WT );
             sum = sum + WT;
             n++;
-            temp = temp->next;
+            
+            struct node *temp2 = temp1->next; //hold the remaning list in temp2
+            SortbyPriority(temp2); //sort them based on priority
+
+        while(temp2!=NULL)
+        { 
+            CT = CT + temp2->burst;
+            TAT = CT - temp2->arrival;
+            WT = TAT - temp2->burst;
+            printf("\nP%d : %d ms", temp2->pID, WT);
+            fprintf(outFile,"\nP%d : %d ms", temp2->pID, WT );
+            sum = sum + WT;
+            n++;
+            temp2 = temp2->next;
         }
 
         float avg = (float)sum/n;
@@ -386,20 +449,23 @@ int main(int argc, char *argv[]) // here I'm getting arguments from command line
     }
     
     fclose(fileRead);
-
+/*
     printf("\nOriginal Linked list\n");
     display(head);
 
-    //printf("\n\nSorted by Arrival Linked list\n");
-    //SortbyArrival(head);
+    printf("\n\nSorted by Arrival Linked list\n");
+    SortbyArrival(head);
+    display(head);
 
-   // printf("\n\nSorted by Burst Linked list\n");
-   // SortbyBurst(head);
+   printf("\n\nSorted by Burst Linked list\n");
+    SortbyBurst(head);
+    display(head);
 
    printf("\n\nSorted by Priority Linked list\n");
    SortbyPriority(head);
     display(head);
     printf("\n");
+*/
     
     int sh;      // used to select which scheduling method
     int preemptiveOption = 0;  // 0 for non-preemptive, 1 for preemptive. By default it is non-preemptive mode
@@ -449,8 +515,8 @@ int main(int argc, char *argv[]) // here I'm getting arguments from command line
             printf("Scheduling method: Round Robin, please enter Time quantum: ");
             scanf("%d", &Tq);
             printf("Time quantum = %d\n", Tq);
-            printf("Process waiting time:\n");
-            printf("\nAverage waiting time:");
+            //printf("Process waiting time:\n");
+            //printf("\nAverage waiting time:");
         }
         else if (sh == 5)
         {

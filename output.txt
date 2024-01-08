@@ -1,27 +1,27 @@
 
+Scheduling method: Shortest Job First. Non-Preemptive
+Process waiting times:
+P4 : 0 ms
+P2 : -2 ms
+P5 : 1 ms
+P1 : 7 ms
+P3 : 14 ms
+ Average waiting time: 4.00 ms
+
 Scheduling method: First Come First Served
 Process waiting times:
-P1 : 0 ms
-P2 : 4 ms
-P3 : 8 ms
-P4 : 10 ms
+P4 : 0 ms
+P3 : 2 ms
+P1 : 9 ms
 P5 : 13 ms
- Average waiting time: 7.00 ms
+P2 : 16 ms
+ Average waiting time: 8.00 ms
 
 Scheduling method: Shortest Job First. Non-Preemptive
 Process waiting times:
-P1 : 0 ms
-P3 : 4 ms
-P5 : 5 ms
-P4 : 9 ms
-P2 : 14 ms
- Average waiting time: 6.40 ms
-
-Scheduling method: Priority Scheduling. Non-Preemptive
-Process waiting times:
-P1 : 0 ms
-P3 : 4 ms
-P5 : 5 ms
-P4 : 9 ms
-P2 : 14 ms
- Average waiting time: 6.40 ms
+P4 : 0 ms
+P2 : -2 ms
+P5 : 1 ms
+P1 : 7 ms
+P3 : 14 ms
+ Average waiting time: 4.00 ms
