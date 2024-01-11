@@ -287,8 +287,7 @@ void fcfsNonPreemptive(struct node *header, char *outFilepath)
     if (header == NULL)
     {
         printf("List is empty");
-
-    } 
+    }
     else
     {
         FILE *outFile = fopen(outFilepath, "a");
@@ -296,7 +295,7 @@ void fcfsNonPreemptive(struct node *header, char *outFilepath)
         struct node *temp = header;
         SortbyArrival(temp);
 
-         while(temp!=NULL)
+        while(temp!=NULL)
         {
             if(TempHeader == NULL)
             {
@@ -309,34 +308,74 @@ void fcfsNonPreemptive(struct node *header, char *outFilepath)
             
             temp = temp->next;
         }
-        int sum =0;
-        int CT =0;
-        int n=0;
-        fprintf(outFile, "Scheduling method: First Come First Served, Non-Preemptive\n"); 
-        fprintf(outFile, "Process waiting times:");
 
-        printf("Scheduling method: First Come First Served, Non-Preemptive\n");
+        int sum = 0;
+        int n = 0;
+        int CT = 0;
+        fprintf(outFile, "Scheduling method: Shortest Job First. Non-Preemptive\n");
+        fprintf(outFile, "Process waiting times:");
+        printf("Scheduling method: Shortest Job First. Non-Preemptive\n");
         printf("Process waiting times:");
-        
-        while(TempHeader!=NULL)
+
+        while (TempHeader != NULL)
         {
-            CT = CT + TempHeader->burst;
-            int TAT = CT - TempHeader->arrival;
-            int WT = TAT - TempHeader ->burst;
-            if(WT<0)
+            struct Tempnode *shortestArrive = NULL;
+            struct Tempnode *temp2 = TempHeader;
+
+            while (temp2 != NULL && temp2->arrival <= CT) // this resolve the issue of CPUidle
             {
-                WT=0;
+                if (shortestArrive == NULL )
+                {
+                    shortestArrive = temp2;
+                }
+                else if(temp2->arrival < shortestArrive->arrival)
+                {
+                    shortestArrive = temp2;
+                }
+
+                temp2 = temp2->next;
             }
-            printf("\nP%d : %d ms \t%d \t%d", TempHeader->pID, WT,CT,TAT);
-            fprintf(outFile,"\nP%d : %d ms", TempHeader->pID, WT );
-            sum = sum + WT;
-            n++;
-            TempHeader = TempHeader->next;
+
+            if (shortestArrive != NULL)
+            {
+                CT = CT + shortestArrive->burst;
+                int TAT = CT - shortestArrive->arrival;
+                int WT = TAT - shortestArrive->burst;
+                if(WT<0)
+                {
+                    WT = 0;
+                }
+
+                printf("\nP%d : %d ms", shortestArrive->pID, WT);
+
+                fprintf(outFile, "\nP%d : %d ms", shortestArrive->pID, WT);
+                sum = sum + WT;
+                n++;
+
+                // Remove the selected process from the list
+                if (TempHeader == shortestArrive)
+                {
+                    TempHeader = TempHeader->next;
+                }
+                else
+                {
+                    struct Tempnode *prev = TempHeader; 
+                    while (prev->next != shortestArrive)
+                    {
+                        prev = prev->next;
+                    }
+                    prev->next = shortestArrive->next; 
+                }
+            }
+            else
+            {
+                CT = TempHeader->arrival; //no process arrived in gant chart. then assign CT as arrival time of current process to move forward
+            }
         }
 
-        float avg = (float)sum/n;
+        float avg = (float)sum / n;
         printf("\n Average waiting time: %.2f ms", avg);
-        fprintf(outFile,"\n Average waiting time: %.2f ms\n\n", avg);
+        fprintf(outFile, "\n Average waiting time: %.2f ms\n\n", avg);
         fclose(outFile);
     }
 }
@@ -346,8 +385,7 @@ void fcfsPreemptive(struct node *header, char *outFilepath)
    if (header == NULL)
     {
         printf("List is empty");
-
-    } 
+    }
     else
     {
         FILE *outFile = fopen(outFilepath, "a");
@@ -355,7 +393,7 @@ void fcfsPreemptive(struct node *header, char *outFilepath)
         struct node *temp = header;
         SortbyArrival(temp);
 
-         while(temp!=NULL)
+        while(temp!=NULL)
         {
             if(TempHeader == NULL)
             {
@@ -368,34 +406,74 @@ void fcfsPreemptive(struct node *header, char *outFilepath)
             
             temp = temp->next;
         }
-        int sum =0;
-        int CT =0;
-        int n=0;
-        fprintf(outFile, "Scheduling method: First Come First Served, Preemptive\n"); 
-        fprintf(outFile, "Process waiting times:");
 
-        printf("Scheduling method: First Come First Served, Preemptive\n");
+        int sum = 0;
+        int n = 0;
+        int CT = 0;
+        fprintf(outFile, "Scheduling method: Shortest Job First. Preemptive\n");
+        fprintf(outFile, "Process waiting times:");
+        printf("Scheduling method: Shortest Job First. Preemptive\n");
         printf("Process waiting times:");
-        
-        while(TempHeader!=NULL)
+
+        while (TempHeader != NULL)
         {
-            CT = CT + TempHeader->burst;
-            int TAT = CT - TempHeader->arrival;
-            int WT = TAT - TempHeader ->burst;
-            if(WT<0)
+            struct Tempnode *shortestArrive = NULL;
+            struct Tempnode *temp2 = TempHeader;
+
+            while (temp2 != NULL && temp2->arrival <= CT) // this resolve the issue of CPUidle
             {
-                WT=0;
+                if (shortestArrive == NULL )
+                {
+                    shortestArrive = temp2;
+                }
+                else if(temp2->arrival < shortestArrive->arrival)
+                {
+                    shortestArrive = temp2;
+                }
+
+                temp2 = temp2->next;
             }
-            printf("\nP%d : %d ms \t%d \t%d", TempHeader->pID, WT,CT,TAT);
-            fprintf(outFile,"\nP%d : %d ms", TempHeader->pID, WT );
-            sum = sum + WT;
-            n++;
-            TempHeader = TempHeader->next;
+
+            if (shortestArrive != NULL)
+            {
+                CT = CT + shortestArrive->burst;
+                int TAT = CT - shortestArrive->arrival;
+                int WT = TAT - shortestArrive->burst;
+                if(WT<0)
+                {
+                    WT = 0;
+                }
+
+                printf("\nP%d : %d ms", shortestArrive->pID, WT);
+
+                fprintf(outFile, "\nP%d : %d ms", shortestArrive->pID, WT);
+                sum = sum + WT;
+                n++;
+
+                // Remove the selected process from the list
+                if (TempHeader == shortestArrive)
+                {
+                    TempHeader = TempHeader->next;
+                }
+                else
+                {
+                    struct Tempnode *prev = TempHeader; 
+                    while (prev->next != shortestArrive)
+                    {
+                        prev = prev->next;
+                    }
+                    prev->next = shortestArrive->next; 
+                }
+            }
+            else
+            {
+                CT = TempHeader->arrival; //no process arrived in gant chart. then assign CT as arrival time of current process to move forward
+            }
         }
 
-        float avg = (float)sum/n;
+        float avg = (float)sum / n;
         printf("\n Average waiting time: %.2f ms", avg);
-        fprintf(outFile,"\n Average waiting time: %.2f ms\n\n", avg);
+        fprintf(outFile, "\n Average waiting time: %.2f ms\n\n", avg);
         fclose(outFile);
     }
 }
@@ -538,13 +616,13 @@ void priorityNonPreemptive(struct node *header, char *outFilepath)
             struct Tempnode *highestPriority = NULL;
             struct Tempnode *temp2 = TempHeader;
 
-            while (temp2 != NULL && temp2->arrival <= CT) // Find the process with the shortest burst time from those who arrived
+            while (temp2 != NULL && temp2->arrival <= CT) // Find the process with the shortest priority time from those who arrived
             {
                 if (highestPriority == NULL )
                 {
                     highestPriority = temp2;
                 }
-                else if(temp2->burst < highestPriority->burst)
+                else if(temp2->priority < highestPriority->priority)
                 {
                     highestPriority = temp2;
                 }

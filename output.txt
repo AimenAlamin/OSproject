@@ -1,0 +1,18 @@
+Scheduling method: Shortest Job First. Preemptive
+Process waiting times:
+P2 : 0 ms
+P1 : 0 ms
+P3 : 2 ms
+P4 : 4 ms
+P5 : 8 ms
+ Average waiting time: 2.80 ms
+
+Scheduling method: Shortest Job First. Non-Preemptive
+Process waiting times:
+P2 : 0 ms
+P1 : 0 ms
+P3 : 2 ms
+P5 : 3 ms
+P4 : 8 ms
+ Average waiting time: 2.60 ms
+
