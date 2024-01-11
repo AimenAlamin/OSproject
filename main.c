@@ -259,12 +259,9 @@ void fcfsNonPreemptive(struct node *header, char *outFilepath)
 
         struct node *temp = header;
         int sum =0;
-        int TAT =0;
-        int BT =0;
-        int WT =0;
         int CT =0;
         int n=0;
-        fprintf(outFile, "\nScheduling method: First Come First Served, Non-Preemptive\n"); 
+        fprintf(outFile, "Scheduling method: First Come First Served, Non-Preemptive\n"); 
         fprintf(outFile, "Process waiting times:");
 
         printf("Scheduling method: First Come First Served, Non-Preemptive\n");
@@ -273,8 +270,8 @@ void fcfsNonPreemptive(struct node *header, char *outFilepath)
         while(temp!=NULL)
         {
             CT = CT + temp->burst;
-            TAT = CT - temp->arrival;
-            WT = TAT - temp ->burst;
+            int TAT = CT - temp->arrival;
+            int WT = TAT - temp ->burst;
             if(WT<0)
             {
                 WT=0;
@@ -288,7 +285,7 @@ void fcfsNonPreemptive(struct node *header, char *outFilepath)
 
         float avg = (float)sum/n;
         printf("\n Average waiting time: %.2f ms", avg);
-        fprintf(outFile,"\n Average waiting time: %.2f ms\n", avg);
+        fprintf(outFile,"\n Average waiting time: %.2f ms\n\n", avg);
         fclose(outFile);
     }
 }
@@ -307,12 +304,9 @@ void fcfsPreemptive(struct node *header, char *outFilepath)
 
         struct node *temp = header;
         int sum =0;
-        int TAT =0;
-        int BT =0;
-        int WT =0;
         int CT =0;
         int n=0;
-        fprintf(outFile, "\nScheduling method: First Come First Served, Preemptive\n"); 
+        fprintf(outFile, "Scheduling method: First Come First Served, Preemptive\n"); 
         fprintf(outFile, "Process waiting times:");
 
         printf("Scheduling method: First Come First Served, Preemptive\n");
@@ -321,8 +315,12 @@ void fcfsPreemptive(struct node *header, char *outFilepath)
         while(temp!=NULL)
         {
             CT = CT + temp->burst;
-            TAT = CT - temp->arrival;
-            WT = TAT - temp ->burst;
+            int TAT = CT - temp->arrival;
+            int WT = TAT - temp ->burst;
+            if(WT<0)
+            {
+                WT=0;
+            }
             printf("\nP%d : %d ms", temp->pID, WT);
             fprintf(outFile,"\nP%d : %d ms", temp->pID, WT );
             sum = sum + WT;
@@ -332,7 +330,7 @@ void fcfsPreemptive(struct node *header, char *outFilepath)
 
         float avg = (float)sum/n;
         printf("\n Average waiting time: %.2f ms", avg);
-        fprintf(outFile,"\n Average waiting time: %.2f ms\n", avg);
+        fprintf(outFile,"\n Average waiting time: %.2f ms\n\n", avg);
         fclose(outFile);
     }
 }
@@ -342,107 +340,164 @@ void sjfNonPreemptive(struct node *header, char *outFilepath)
     if (header == NULL)
     {
         printf("List is empty");
-
-    } 
+    }
     else
     {
         FILE *outFile = fopen(outFilepath, "a");
         SortbyArrival(header);
 
-        struct node *temp1 = header;
-        int sum =0;
-        int TAT =0;
-        int BT =0;
-        int WT =0;
-        int CT =0;
-        int n=0;
-        fprintf(outFile, "\nScheduling method: Shortest Job First. Non-Preemptive\n"); 
+        struct node *temp = header;
+        int sum = 0;
+        int n = 0;
+        int CT = 0;
+        fprintf(outFile, "Scheduling method: Shortest Job First. Non-Preemptive\n");
         fprintf(outFile, "Process waiting times:");
-
         printf("Scheduling method: Shortest Job First. Non-Preemptive\n");
         printf("Process waiting times:");
-            //execute the first process that arrived
-            CT = CT + temp1->burst;
-            TAT = CT - temp1->arrival;
-            WT = TAT - temp1->burst;
-            printf("\nP%d : %d ms", temp1->pID, WT);
-            fprintf(outFile,"\nP%d : %d ms", temp1->pID, WT );
-            sum = sum + WT;
-            n++;
-            
-            struct node *temp2 = temp1->next; //hold the remaning list in temp2
-            SortbyBurst(temp2); //sort them based on burst time
 
-        while(temp2!=NULL)
-        { 
-            CT = CT + temp2->burst;
-            TAT = CT - temp2->arrival;
-            WT = TAT - temp2->burst;
-            printf("\nP%d : %d ms", temp2->pID, WT);
-            fprintf(outFile,"\nP%d : %d ms", temp2->pID, WT );
-            sum = sum + WT;
-            n++;
-            temp2 = temp2->next;
+        while (temp != NULL)
+        {
+            struct node *shortestBurst = NULL;
+            struct node *temp2 = temp;
+
+            while (temp2 != NULL && temp2->arrival <= CT) // Find the process with the shortest burst time from those who arrived
+            {
+                if (shortestBurst == NULL )
+                {
+                    shortestBurst = temp2;
+                }
+                else if(temp2->burst < shortestBurst->burst)
+                {
+                    shortestBurst = temp2;
+                }
+
+                temp2 = temp2->next;
+            }
+
+            if (shortestBurst != NULL)
+            {
+                CT = CT + shortestBurst->burst;
+                int TAT = CT - shortestBurst->arrival;
+                int WT = TAT - shortestBurst->burst;
+                if(WT<0)
+                {
+                    WT = 0;
+                }
+
+                printf("\nP%d : %d ms", shortestBurst->pID, WT);
+
+                fprintf(outFile, "\nP%d : %d ms", shortestBurst->pID, WT);
+                sum = sum + WT;
+                n++;
+
+                // Remove the selected process from the list, so we don't execute same process again
+                if (temp == shortestBurst)
+                {
+                    temp = temp->next; //means the first process
+                }
+                else
+                {
+                    struct node *prev = temp; // means the executed process is somewhere btw
+                    while (prev->next != shortestBurst)
+                    {
+                        prev = prev->next;
+                    }
+                    prev->next = shortestBurst->next; //so we find it and skip it
+                }
+            }
+            else
+            {
+                CT = temp->arrival; //no process arrived in gant chart. then assign CT as arrival time of current process to move forward
+            }
         }
 
-        float avg = (float)sum/n;
+        float avg = (float)sum / n;
         printf("\n Average waiting time: %.2f ms", avg);
-        fprintf(outFile,"\n Average waiting time: %.2f ms\n", avg);
+        fprintf(outFile, "\n Average waiting time: %.2f ms\n\n", avg);
         fclose(outFile);
     }
 }
+
 
 void priorityNonPreemptive(struct node *header, char *outFilepath)
 {
     if (header == NULL)
     {
         printf("List is empty");
-
-    } 
+    }
     else
     {
         FILE *outFile = fopen(outFilepath, "a");
         SortbyArrival(header);
 
-        struct node *temp1 = header;
-        int sum =0;
-        int TAT =0;
-        int BT =0;
-        int WT =0;
-        int CT =0;
-        int n=0;
-        fprintf(outFile, "\nScheduling method: Priority Scheduling. Non-Preemptive\n"); 
+        struct node *temp = header;
+        int sum = 0;
+        int n = 0;
+        int CT = 0;
+        fprintf(outFile, "Scheduling method: Priority. Non-Preemptive\n");
         fprintf(outFile, "Process waiting times:");
-
-        printf("Scheduling method: Priority Scheduling. Non-Preemptive\n");
+        printf("Scheduling method: Priority. Non-Preemptive\n");
         printf("Process waiting times:");
-        //execute the first process that arrived
-            CT = CT + temp1->burst;
-            TAT = CT - temp1->arrival;
-            WT = TAT - temp1->burst;
-            printf("\nP%d : %d ms", temp1->pID, WT);
-            fprintf(outFile,"\nP%d : %d ms", temp1->pID, WT );
-            sum = sum + WT;
-            n++;
-            
-            struct node *temp2 = temp1->next; //hold the remaning list in temp2
-            SortbyPriority(temp2); //sort them based on priority
 
-        while(temp2!=NULL)
-        { 
-            CT = CT + temp2->burst;
-            TAT = CT - temp2->arrival;
-            WT = TAT - temp2->burst;
-            printf("\nP%d : %d ms", temp2->pID, WT);
-            fprintf(outFile,"\nP%d : %d ms", temp2->pID, WT );
-            sum = sum + WT;
-            n++;
-            temp2 = temp2->next;
+        while (temp != NULL)
+        {
+            struct node *highestPriority = NULL;
+            struct node *temp2 = temp;
+
+            while (temp2 != NULL && temp2->arrival <= CT) // Find the process with the shortest priority time from those who arrived
+            {
+                if (highestPriority == NULL)
+                {
+                    highestPriority = temp2;
+                }
+                else if(temp2->priority < highestPriority->priority)
+                {
+                    highestPriority = temp2;
+                }
+
+                temp2 = temp2->next;
+            }
+
+            if (highestPriority != NULL)
+            {
+                CT = CT + highestPriority->burst;  // completion time
+                int TAT = CT - highestPriority->arrival;  //turn around time
+                int WT = TAT - highestPriority->burst;  // waiting time
+                if(WT<0)
+                {
+                    WT = 0;
+                }
+
+                printf("\nP%d : %d ms", highestPriority->pID, WT);
+
+                fprintf(outFile, "\nP%d : %d ms", highestPriority->pID, WT);
+                sum = sum + WT;
+                n++;
+
+                // Remove the selected process from the list, so we don't execute same process again
+                if (temp == highestPriority)
+                {
+                    temp = temp->next; //means the first process is executed so skip it
+                }
+                else
+                {
+                    struct node *prev = temp; // means the executed process is somewhere btw
+                    while (prev->next != highestPriority)
+                    {
+                        prev = prev->next;
+                    }
+                    prev->next = highestPriority->next; //so we find it and skip it
+                }
+            }
+            else
+            {
+                CT = temp->arrival; //no process arrived in gant chart. then assign CT as arrival time of current process to move forward
+            }
         }
 
-        float avg = (float)sum/n;
+        float avg = (float)sum / n;
         printf("\n Average waiting time: %.2f ms", avg);
-        fprintf(outFile,"\n Average waiting time: %.2f ms\n", avg);
+        fprintf(outFile, "\n Average waiting time: %.2f ms\n\n", avg);
         fclose(outFile);
     }
 }
@@ -519,23 +574,7 @@ int main(int argc, char *argv[]) // here I'm getting arguments from command line
     }
     
     fclose(fileRead);
-/*
-    printf("\nOriginal Linked list\n");
-    display(head);
 
-    printf("\n\nSorted by Arrival Linked list\n");
-    SortbyArrival(head);
-    display(head);
-
-   printf("\n\nSorted by Burst Linked list\n");
-    SortbyBurst(head);
-    display(head);
-
-   printf("\n\nSorted by Priority Linked list\n");
-   SortbyPriority(head);
-    display(head);
-    printf("\n");
-*/
     int op; // used to select which option 
     int sh;      // used to select which scheduling method
     int preemptiveOption = 0;  // 0 for non-preemptive, 1 for preemptive. By default it is non-preemptive mode
@@ -544,14 +583,14 @@ int main(int argc, char *argv[]) // here I'm getting arguments from command line
 		
 	printf("\n");
     printf("\tCPU Scheduler Simulator\n 1- View Scheduling Methods \n 2- Change Preemptive Mode \n 3- Show Result \n 4- End Program \n  OPTION > ");
-    scanf("%d", &op);
+    scanf("%d", &op); //user choose option
 	
     while (op != 4)
     {
         if (op == 1)
         {
             printf("\n 1- FCFS \n 2- SJF \n 3- Priority Scheduling \n 4- Round Robbin\n 5- None\n  OPTION > ");
-            scanf("%d", &sh);
+            scanf("%d", &sh); //user choose scheduling method
 
             printf("\n");
 
@@ -639,7 +678,7 @@ int main(int argc, char *argv[]) // here I'm getting arguments from command line
         }
         
 
-        else if (op == 3)
+        else if (op == 3) //show result
         {
             printf("\n");
 
