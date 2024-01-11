@@ -87,6 +87,28 @@ void SortbyArrival(struct node *header)
                     i->priority = j->priority;
                     j->priority = tempPri;
                 }
+
+                 if(i->arrival == j->arrival) // if two process have same arrival time, sort by less process id
+                {
+                    if(i->pID > j->pID)
+                 {
+                    tempPID = i->pID;
+                    i->pID = j->pID;
+                    j->pID = tempPID;
+
+                    tempBur = i->burst;
+                    i->burst = j->burst;
+                    j->burst = tempBur;
+                    
+                    tempArr = i->arrival;
+                    i->arrival = j->arrival;
+                    j->arrival = tempArr;
+
+                    tempPri = i->priority;
+                    i->priority = j->priority;
+                    j->priority = tempPri;
+                 }
+                }
             }
         }
 
@@ -130,7 +152,7 @@ void SortbyBurst(struct node *header)
                     j->priority = tempPri;
                 }
 
-                if(i->burst == j->burst)
+                if(i->burst == j->burst) // if two process have same burst time, sort by less arrival time
                 {
                     if(i->arrival > j->arrival)
                 {
@@ -223,7 +245,7 @@ void SortbyPriority(struct node *header)
 
 }
 
-void FCFS(struct node *header, char *outFilepath)
+void fcfsNonPreemptive(struct node *header, char *outFilepath)
 {
     if (header == NULL)
     {
@@ -242,10 +264,58 @@ void FCFS(struct node *header, char *outFilepath)
         int WT =0;
         int CT =0;
         int n=0;
-        fprintf(outFile, "\nScheduling method: First Come First Served\n"); 
+        fprintf(outFile, "\nScheduling method: First Come First Served, Non-Preemptive\n"); 
         fprintf(outFile, "Process waiting times:");
 
-        printf("Scheduling method: First Come First Served\n");
+        printf("Scheduling method: First Come First Served, Non-Preemptive\n");
+        printf("Process waiting times:");
+        
+        while(temp!=NULL)
+        {
+            CT = CT + temp->burst;
+            TAT = CT - temp->arrival;
+            WT = TAT - temp ->burst;
+            if(WT<0)
+            {
+                WT=0;
+            }
+            printf("\nP%d : %d ms \t%d \t%d", temp->pID, WT,CT,TAT);
+            fprintf(outFile,"\nP%d : %d ms", temp->pID, WT );
+            sum = sum + WT;
+            n++;
+            temp = temp->next;
+        }
+
+        float avg = (float)sum/n;
+        printf("\n Average waiting time: %.2f ms", avg);
+        fprintf(outFile,"\n Average waiting time: %.2f ms\n", avg);
+        fclose(outFile);
+    }
+}
+
+void fcfsPreemptive(struct node *header, char *outFilepath)
+{
+    if (header == NULL)
+    {
+        printf("List is empty");
+
+    } 
+    else
+    {
+        FILE *outFile = fopen(outFilepath, "a");
+        SortbyArrival(header);
+
+        struct node *temp = header;
+        int sum =0;
+        int TAT =0;
+        int BT =0;
+        int WT =0;
+        int CT =0;
+        int n=0;
+        fprintf(outFile, "\nScheduling method: First Come First Served, Preemptive\n"); 
+        fprintf(outFile, "Process waiting times:");
+
+        printf("Scheduling method: First Come First Served, Preemptive\n");
         printf("Process waiting times:");
         
         while(temp!=NULL)
@@ -466,83 +536,188 @@ int main(int argc, char *argv[]) // here I'm getting arguments from command line
     display(head);
     printf("\n");
 */
-    
+    int op; // used to select which option 
     int sh;      // used to select which scheduling method
     int preemptiveOption = 0;  // 0 for non-preemptive, 1 for preemptive. By default it is non-preemptive mode
     int Tq;      // used for time quantum value
-	int ch; //for reading from file
+	
 		
 	printf("\n");
-	printf("From the following options\n 1-FCFS \n 2-SJF \n 3-Priority Scheduling \n 4-Round Robbin \n 5-Change Preemptive Mode\n 6-End the program\n ");
-    printf("\nSelect the scheduling method: ");
-    scanf("%d", &sh);
-    printf("\n");
+    printf("\tCPU Scheduler Simulator\n 1- View Scheduling Methods \n 2- Change Preemptive Mode \n 3- Show Result \n 4- End Program \n  OPTION > ");
+    scanf("%d", &op);
 	
-    while (sh != 6)
+    while (op != 4)
     {
-        if (sh == 1)
+        if (op == 1)
         {
-            FCFS(head, argv[4]);
-            
-        }
-        else if (sh == 2)
-        {
-            if (preemptiveOption == 0)
+            printf("\n 1- FCFS \n 2- SJF \n 3- Priority Scheduling \n 4- Round Robbin\n 5- None\n  OPTION > ");
+            scanf("%d", &sh);
+
+            printf("\n");
+
+            if(sh == 1)
             {
-                sjfNonPreemptive(head, argv[4]);
+                if (preemptiveOption == 0)
+                {
+                    printf("First Come First Served Non-Preemptive successfully executed\n");
+                //FCFSnonPreemptive(head, argv[4]);
+                }
+                else if (preemptiveOption == 1)
+                {
+                    printf("First Come First Served Preemptive successfully executed\n");
+                //FCFSpreemptive(head, argv[4]);
+                }
             }
-            else if (preemptiveOption == 1)
+            else if(sh == 2)
             {
-                //printf("Preemptive\n");
+                if (preemptiveOption == 0)
+                {
+                    printf("Shortest Job First Non-Preemptive successfully executed\n");
+                //sjfNonPreemptive(head, argv[4]);
+                }
+                else if (preemptiveOption == 1)
+                {
+                    printf("Shortest Job First Preemptive successfully executed\n");
+                //sjfPreemptive(head, argv[4]);
+                }
             }
-            
-        
-        }
-        else if (sh == 3)
-        {
-            if (preemptiveOption == 0)
+            else if(sh == 3)
             {
-                priorityNonPreemptive(head, argv[4]);
+                if (preemptiveOption == 0)
+                {
+                    printf("Priority Non-Preemptive successfully executed\n");
+                // priorityNonPreemptive(head, argv[4]);
+                }
+                else if (preemptiveOption == 1)
+                {
+                    printf("Priority Preemptive successfully executed\n");
+                // priorityPreemptive(head, argv[4]);
+                }
             }
-            else if (preemptiveOption == 1)
+            else if(sh == 4)
             {
-                //printf("Preemptive\n");
+                if (preemptiveOption == 0)
+                {
+                    printf("\nScheduling method: Round Robin Non-Preemptive, please enter Time quantum: ");
+                    scanf("%d", &Tq);
+                    printf("\nTime quantum = %d\n", Tq);
+                    printf("Round Robbin Non-Preemptive successfully executed\n");
+                
+                }
+                else if (preemptiveOption == 1)
+                {
+                    printf("\nScheduling method: Round Robin Preemptive, please enter Time quantum: ");
+                    scanf("%d", &Tq);
+                    printf("\nTime quantum = %d\n", Tq);
+                    printf("Round Robbin Preemptive successfully executed\n");
+                
+                }
             }
-           
+            else if(sh == 5)
+            {
+                printf("None of scheduling method chosen\n");
+            }
+            else
+            {
+                printf("Error. Please select one of the available options\n");
+            }
+
+
+             
         }
-        else if (sh == 4)
+
+        else if (op == 2)
         {
-            printf("Scheduling method: Round Robin, please enter Time quantum: ");
-            scanf("%d", &Tq);
-            printf("Time quantum = %d\n", Tq);
-            //printf("Process waiting time:\n");
-            //printf("\nAverage waiting time:");
-        }
-        else if (sh == 5)
-        {
-            printf("Select 0 for non-preemptive or 1 for preemptive: ");
+            printf("\nSelect 0 for non-preemptive or 1 for preemptive: ");
             scanf("%d", &preemptiveOption);
             if (preemptiveOption != 0 && preemptiveOption != 1)
             {
             	printf("\nError, invalid preemptive option\n");
-				return 1;	
+			
 			}
+            
+        }
+        
+
+        else if (op == 3)
+        {
             printf("\n");
+
+            if(sh==1 && preemptiveOption == 0)
+            {
+                fcfsNonPreemptive(head, argv[4]);
+            }
+            else if(sh==1 && preemptiveOption == 1)
+            {
+                fcfsPreemptive(head, argv[4]);
+            }
+
+            else if(sh==2 && preemptiveOption == 0)
+            {
+                sjfNonPreemptive(head, argv[4]);
+            }
+            else if(sh==2 && preemptiveOption == 1)
+            {
+                //sjfPreemptive(head, argv[4]);
+            }
+
+            else if(sh==3 && preemptiveOption == 0)
+            {
+                priorityNonPreemptive(head, argv[4]);
+            }
+            else if(sh==3 && preemptiveOption == 1)
+            {
+                printf("Didn't do it");
+                //priorityPreemptive(head, argv[4]);
+            }
+
+            else if(sh==4 && preemptiveOption == 0)
+            {
+                printf("Didn't do it");
+                //RoundRobbinNonPreemptive(head, argv[4]);
+            }
+            else if(sh==3 && preemptiveOption == 1)
+            {
+                printf("Didn't do it");
+                //RoundRobbinPreemptive(head, argv[4]);
+            }
+
+            else{
+
+                printf("Nothing to display, you didn't pick a scheduling method");
+            }
+           
         }
         else
         {
-            printf("Error, you didn't specify the scheduling method\n");
+            printf("\nError. Please select one of the available options\n");
+            
         }
+        
 
-        printf("\n\nFrom the following options\n 1-FCFS \n 2-SJF \n 3-Priority Scheduling \n 4-Round Robbin \n 5-Change Preemptive Mode\n 6-End the program\n");
-        printf("\nSelect the scheduling method: ");
-        scanf("%d", &sh);
-        printf("\n");
+        printf("\n\n");
+        printf("\tCPU Scheduler Simulator\n 1- View Scheduling Methods \n 2- Change Preemptive Mode \n 3- Show Result \n 4- End Program \n  OPTION > ");
+        scanf("%d", &op);
 
        
     }
-    printf("\nProgram terminated");
-	fclose(fileAppend);
+    printf("\n\t\tProgram terminated.....\n");
+    fclose(fileAppend);
+
+    FILE *fileEnd = fopen(argv[4], "r");
+
+    if(fileEnd==NULL)
+    {
+        printf("File is empty");
+        
+    }
+
+    char str2[100];
+    while(fgets(str2, 100, fileEnd)!=NULL) //reading from file output and printing it to screen
+    {
+        printf("%s",str2);
+    }
+
     
 	return 0;
 }
