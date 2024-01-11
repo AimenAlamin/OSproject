@@ -9,8 +9,27 @@ struct node {
     struct node *next;
 };
 
+struct Tempnode {
+    int pID;
+    int burst;
+    int arrival;
+    int priority;
+    struct Tempnode *next;
+};
+
+
 struct node *createNode(int pID, int burst, int arrival, int priority) {
     struct node *header = (struct node *)malloc(sizeof(struct node));
+    header->pID = pID;
+    header->burst = burst;
+    header->arrival = arrival;
+    header->priority = priority;
+    header->next = NULL;
+    return header;
+}
+
+struct Tempnode *TempcreateNode(int pID, int burst, int arrival, int priority) {
+    struct Tempnode *header = (struct Tempnode *)malloc(sizeof(struct Tempnode));
     header->pID = pID;
     header->burst = burst;
     header->arrival = arrival;
@@ -45,6 +64,24 @@ struct node *InsertBack(struct node *header, int pID, int burst, int arrival, in
 
     struct node *headerTemp = header;
     while (headerTemp->next != NULL) {
+        headerTemp = headerTemp->next;
+    }
+    headerTemp->next = temp;
+
+    return header;
+}
+
+struct Tempnode *TempInsertBack(struct Tempnode *header, int pID, int burst, int arrival, int priority) {
+    struct Tempnode *temp = TempcreateNode(pID, burst, arrival, priority);
+
+    if (header == NULL) {
+        header = temp;
+        return header;
+    }
+
+    struct Tempnode *headerTemp = header;
+    while (headerTemp->next != NULL) 
+    {
         headerTemp = headerTemp->next;
     }
     headerTemp->next = temp;
@@ -255,9 +292,23 @@ void fcfsNonPreemptive(struct node *header, char *outFilepath)
     else
     {
         FILE *outFile = fopen(outFilepath, "a");
-        SortbyArrival(header);
-
+        struct Tempnode *TempHeader = NULL;
         struct node *temp = header;
+        SortbyArrival(temp);
+
+         while(temp!=NULL)
+        {
+            if(TempHeader == NULL)
+            {
+                TempHeader = TempcreateNode(temp->pID,temp->burst,temp->arrival,temp->priority);
+            }
+            else
+            {
+                TempHeader = TempInsertBack(TempHeader, temp->pID,temp->burst,temp->arrival,temp->priority);
+            }
+            
+            temp = temp->next;
+        }
         int sum =0;
         int CT =0;
         int n=0;
@@ -267,20 +318,20 @@ void fcfsNonPreemptive(struct node *header, char *outFilepath)
         printf("Scheduling method: First Come First Served, Non-Preemptive\n");
         printf("Process waiting times:");
         
-        while(temp!=NULL)
+        while(TempHeader!=NULL)
         {
-            CT = CT + temp->burst;
-            int TAT = CT - temp->arrival;
-            int WT = TAT - temp ->burst;
+            CT = CT + TempHeader->burst;
+            int TAT = CT - TempHeader->arrival;
+            int WT = TAT - TempHeader ->burst;
             if(WT<0)
             {
                 WT=0;
             }
-            printf("\nP%d : %d ms \t%d \t%d", temp->pID, WT,CT,TAT);
-            fprintf(outFile,"\nP%d : %d ms", temp->pID, WT );
+            printf("\nP%d : %d ms \t%d \t%d", TempHeader->pID, WT,CT,TAT);
+            fprintf(outFile,"\nP%d : %d ms", TempHeader->pID, WT );
             sum = sum + WT;
             n++;
-            temp = temp->next;
+            TempHeader = TempHeader->next;
         }
 
         float avg = (float)sum/n;
@@ -292,7 +343,7 @@ void fcfsNonPreemptive(struct node *header, char *outFilepath)
 
 void fcfsPreemptive(struct node *header, char *outFilepath)
 {
-    if (header == NULL)
+   if (header == NULL)
     {
         printf("List is empty");
 
@@ -300,9 +351,23 @@ void fcfsPreemptive(struct node *header, char *outFilepath)
     else
     {
         FILE *outFile = fopen(outFilepath, "a");
-        SortbyArrival(header);
-
+        struct Tempnode *TempHeader = NULL;
         struct node *temp = header;
+        SortbyArrival(temp);
+
+         while(temp!=NULL)
+        {
+            if(TempHeader == NULL)
+            {
+                TempHeader = TempcreateNode(temp->pID,temp->burst,temp->arrival,temp->priority);
+            }
+            else
+            {
+                TempHeader = TempInsertBack(TempHeader, temp->pID,temp->burst,temp->arrival,temp->priority);
+            }
+            
+            temp = temp->next;
+        }
         int sum =0;
         int CT =0;
         int n=0;
@@ -312,20 +377,20 @@ void fcfsPreemptive(struct node *header, char *outFilepath)
         printf("Scheduling method: First Come First Served, Preemptive\n");
         printf("Process waiting times:");
         
-        while(temp!=NULL)
+        while(TempHeader!=NULL)
         {
-            CT = CT + temp->burst;
-            int TAT = CT - temp->arrival;
-            int WT = TAT - temp ->burst;
+            CT = CT + TempHeader->burst;
+            int TAT = CT - TempHeader->arrival;
+            int WT = TAT - TempHeader ->burst;
             if(WT<0)
             {
                 WT=0;
             }
-            printf("\nP%d : %d ms", temp->pID, WT);
-            fprintf(outFile,"\nP%d : %d ms", temp->pID, WT );
+            printf("\nP%d : %d ms \t%d \t%d", TempHeader->pID, WT,CT,TAT);
+            fprintf(outFile,"\nP%d : %d ms", TempHeader->pID, WT );
             sum = sum + WT;
             n++;
-            temp = temp->next;
+            TempHeader = TempHeader->next;
         }
 
         float avg = (float)sum/n;
@@ -344,9 +409,24 @@ void sjfNonPreemptive(struct node *header, char *outFilepath)
     else
     {
         FILE *outFile = fopen(outFilepath, "a");
-        SortbyArrival(header);
-
+        struct Tempnode *TempHeader = NULL;
         struct node *temp = header;
+        SortbyArrival(temp);
+
+        while(temp!=NULL)
+        {
+            if(TempHeader == NULL)
+            {
+                TempHeader = TempcreateNode(temp->pID,temp->burst,temp->arrival,temp->priority);
+            }
+            else
+            {
+                TempHeader = TempInsertBack(TempHeader, temp->pID,temp->burst,temp->arrival,temp->priority);
+            }
+            
+            temp = temp->next;
+        }
+
         int sum = 0;
         int n = 0;
         int CT = 0;
@@ -355,10 +435,10 @@ void sjfNonPreemptive(struct node *header, char *outFilepath)
         printf("Scheduling method: Shortest Job First. Non-Preemptive\n");
         printf("Process waiting times:");
 
-        while (temp != NULL)
+        while (TempHeader != NULL)
         {
-            struct node *shortestBurst = NULL;
-            struct node *temp2 = temp;
+            struct Tempnode *shortestBurst = NULL;
+            struct Tempnode *temp2 = TempHeader;
 
             while (temp2 != NULL && temp2->arrival <= CT) // Find the process with the shortest burst time from those who arrived
             {
@@ -391,13 +471,13 @@ void sjfNonPreemptive(struct node *header, char *outFilepath)
                 n++;
 
                 // Remove the selected process from the list, so we don't execute same process again
-                if (temp == shortestBurst)
+                if (TempHeader == shortestBurst)
                 {
-                    temp = temp->next; //means the first process
+                    TempHeader = TempHeader->next; //means the first process
                 }
                 else
                 {
-                    struct node *prev = temp; // means the executed process is somewhere btw
+                    struct Tempnode *prev = TempHeader; // means the executed process is somewhere btw
                     while (prev->next != shortestBurst)
                     {
                         prev = prev->next;
@@ -407,7 +487,7 @@ void sjfNonPreemptive(struct node *header, char *outFilepath)
             }
             else
             {
-                CT = temp->arrival; //no process arrived in gant chart. then assign CT as arrival time of current process to move forward
+                CT = TempHeader->arrival; //no process arrived in gant chart. then assign CT as arrival time of current process to move forward
             }
         }
 
@@ -428,9 +508,24 @@ void priorityNonPreemptive(struct node *header, char *outFilepath)
     else
     {
         FILE *outFile = fopen(outFilepath, "a");
-        SortbyArrival(header);
-
+        struct Tempnode *TempHeader = NULL;
         struct node *temp = header;
+        SortbyArrival(temp);
+
+        while(temp!=NULL)
+        {
+            if(TempHeader == NULL)
+            {
+                TempHeader = TempcreateNode(temp->pID,temp->burst,temp->arrival,temp->priority);
+            }
+            else
+            {
+                TempHeader = TempInsertBack(TempHeader, temp->pID,temp->burst,temp->arrival,temp->priority);
+            }
+            
+            temp = temp->next;
+        }
+
         int sum = 0;
         int n = 0;
         int CT = 0;
@@ -438,19 +533,18 @@ void priorityNonPreemptive(struct node *header, char *outFilepath)
         fprintf(outFile, "Process waiting times:");
         printf("Scheduling method: Priority. Non-Preemptive\n");
         printf("Process waiting times:");
-
-        while (temp != NULL)
+        while (TempHeader != NULL)
         {
-            struct node *highestPriority = NULL;
-            struct node *temp2 = temp;
+            struct Tempnode *highestPriority = NULL;
+            struct Tempnode *temp2 = TempHeader;
 
-            while (temp2 != NULL && temp2->arrival <= CT) // Find the process with the shortest priority time from those who arrived
+            while (temp2 != NULL && temp2->arrival <= CT) // Find the process with the shortest burst time from those who arrived
             {
-                if (highestPriority == NULL)
+                if (highestPriority == NULL )
                 {
                     highestPriority = temp2;
                 }
-                else if(temp2->priority < highestPriority->priority)
+                else if(temp2->burst < highestPriority->burst)
                 {
                     highestPriority = temp2;
                 }
@@ -460,9 +554,9 @@ void priorityNonPreemptive(struct node *header, char *outFilepath)
 
             if (highestPriority != NULL)
             {
-                CT = CT + highestPriority->burst;  // completion time
-                int TAT = CT - highestPriority->arrival;  //turn around time
-                int WT = TAT - highestPriority->burst;  // waiting time
+                CT = CT + highestPriority->burst;
+                int TAT = CT - highestPriority->arrival;
+                int WT = TAT - highestPriority->burst;
                 if(WT<0)
                 {
                     WT = 0;
@@ -475,13 +569,13 @@ void priorityNonPreemptive(struct node *header, char *outFilepath)
                 n++;
 
                 // Remove the selected process from the list, so we don't execute same process again
-                if (temp == highestPriority)
+                if (TempHeader == highestPriority)
                 {
-                    temp = temp->next; //means the first process is executed so skip it
+                    TempHeader = TempHeader->next; //means the first process
                 }
                 else
                 {
-                    struct node *prev = temp; // means the executed process is somewhere btw
+                    struct Tempnode *prev = TempHeader; // means the executed process is somewhere btw
                     while (prev->next != highestPriority)
                     {
                         prev = prev->next;
@@ -491,10 +585,10 @@ void priorityNonPreemptive(struct node *header, char *outFilepath)
             }
             else
             {
-                CT = temp->arrival; //no process arrived in gant chart. then assign CT as arrival time of current process to move forward
+                CT = TempHeader->arrival; //no process arrived in gant chart. then assign CT as arrival time of current process to move forward
             }
         }
-
+        
         float avg = (float)sum / n;
         printf("\n Average waiting time: %.2f ms", avg);
         fprintf(outFile, "\n Average waiting time: %.2f ms\n\n", avg);
