@@ -312,9 +312,9 @@ void fcfsNonPreemptive(struct node *header, char *outFilepath)
         int sum = 0;
         int n = 0;
         int CT = 0;
-        fprintf(outFile, "Scheduling method: Shortest Job First. Non-Preemptive\n");
+        fprintf(outFile, "Scheduling method: First Come First Served. Non-Preemptive\n");
         fprintf(outFile, "Process waiting times:");
-        printf("Scheduling method: Shortest Job First. Non-Preemptive\n");
+        printf("Scheduling method: First Come First Served. Non-Preemptive\n");
         printf("Process waiting times:");
 
         while (TempHeader != NULL)
@@ -410,9 +410,9 @@ void fcfsPreemptive(struct node *header, char *outFilepath)
         int sum = 0;
         int n = 0;
         int CT = 0;
-        fprintf(outFile, "Scheduling method: Shortest Job First. Preemptive\n");
+        fprintf(outFile, "Scheduling method: First Come First Served. Preemptive\n");
         fprintf(outFile, "Process waiting times:");
-        printf("Scheduling method: Shortest Job First. Preemptive\n");
+        printf("Scheduling method: First Come First Served. Preemptive\n");
         printf("Process waiting times:");
 
         while (TempHeader != NULL)
